@@ -1,10 +1,13 @@
 package com.codebillionz.android.notekeeper;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
+import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -18,6 +21,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,6 +35,8 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
     private CourseRecyclerAdapter mCourseRecyclerAdapter;
     private RecyclerView.LayoutManager mCoursesLayoutManager;
 
+    private  NoteKeeperOpenHelper mDbOpenHelper;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +46,8 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //this is cheAP
+        mDbOpenHelper = new NoteKeeperOpenHelper(this);
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,6 +85,10 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         itemRecyclerView.setAdapter(mNoteRecyclerAdapter);
         selectNavigationMenuItem(R.id.nav_notes);
 
+        final SQLiteDatabase db = mDbOpenHelper.getReadableDatabase();
+
+
+
     }
     private void displayCourses(){
         itemRecyclerView.setLayoutManager(mCoursesLayoutManager);
@@ -104,9 +116,29 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
     }
 
     @Override
+    protected void onDestroy() {
+        mDbOpenHelper.close();
+        super.onDestroy();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         mNoteRecyclerAdapter.notifyDataSetChanged();
+        updateNavHeader();
+    }
+    private void updateNavHeader() {
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        View headerView = navigationView.getHeaderView(0);
+        TextView textUserName = headerView.findViewById(R.id.text_user_name);
+        TextView textEmailAddress = headerView.findViewById(R.id.text_email_address);
+
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        String userName = pref.getString("user_display_name", "");
+        String emailAddress = pref.getString("user_email_address", "");
+
+        textUserName.setText(userName);
+        textEmailAddress.setText(emailAddress);
     }
 
     @Override
@@ -114,6 +146,19 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        switch(id) {
+            case  R.id.action_settings:
+                Intent intent = new Intent(this,SettingsActivity.class);
+                startActivity(intent);
+                return true;
+
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -126,7 +171,7 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         } else if(id== R.id.nav_send){
             handleSelection(R.string.nav_send_message);
         } else if(id== R.id.nav_share){
-            handleSelection(R.string.nav_share_message );
+            handleShare();
         }
 
         DrawerLayout  drawerLayout = findViewById(R.id.drawer_layout);
@@ -136,5 +181,11 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
 
     private void handleSelection(int messageId) {
         Snackbar.make(findViewById(R.id.list_items),messageId,Snackbar.LENGTH_SHORT).show();
+    }
+    private void handleShare() {
+        View view = findViewById(R.id.list_items);
+        Snackbar.make(view, "Share to - " +
+                        PreferenceManager.getDefaultSharedPreferences(this).getString("user_favorite_social", ""),
+                Snackbar.LENGTH_LONG).show();
     }
 }
