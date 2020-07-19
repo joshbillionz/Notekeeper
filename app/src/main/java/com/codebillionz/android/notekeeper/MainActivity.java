@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
     }
 
     private void initDisplayContent(){
+        DataManager.loadFromDatabase(mDbOpenHelper);
         itemRecyclerView = (RecyclerView) findViewById(R.id.list_items);
         mNotesLayoutManager = new LinearLayoutManager(this);
         mCoursesLayoutManager = new GridLayoutManager(this, getResources().getInteger(R.integer.course_grid_span));
@@ -83,11 +84,8 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
     private void displayNote() {
         itemRecyclerView.setLayoutManager(mNotesLayoutManager);
         itemRecyclerView.setAdapter(mNoteRecyclerAdapter);
+
         selectNavigationMenuItem(R.id.nav_notes);
-
-        final SQLiteDatabase db = mDbOpenHelper.getReadableDatabase();
-
-
 
     }
     private void displayCourses(){

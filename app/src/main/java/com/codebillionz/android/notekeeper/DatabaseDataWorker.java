@@ -3,6 +3,7 @@ package com.codebillionz.android.notekeeper;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 /**
  * Created by Jim.
@@ -42,6 +43,8 @@ public class DatabaseDataWorker {
         values.put(NoteKeeperDatabaseContract.CourseInfoEntry.COLUMN_COURSE_TITLE, title);
 
         long newRowId = mDb.insert(NoteKeeperDatabaseContract.CourseInfoEntry.TABLE_NAME, null, values);
+        Log.d("TAG", "insertCourse: ");
+
     }
 
     private void insertNote(String courseId, String title, String text) {
