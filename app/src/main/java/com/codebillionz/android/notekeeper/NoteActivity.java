@@ -8,7 +8,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.ViewModelProvider;
+//import androidx.lifecycle.ViewModelProvider;
 
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,7 +28,8 @@ public class NoteActivity extends AppCompatActivity {
     public static final String ORIGINAL_NOTE_TEXT = "com.codebillionz.android.notekeeper.ORIGINAL_NOTE_TEXT";
 
     public static final int ID_NOT_SET = -1;
-    private NoteInfo mNote;
+    private NoteInfo mNote = new NoteInfo(DataManager.getInstance().getCourses().get(0), "", "");
+
     private boolean mIsNewNote;
     private EditText mTextNoteTitle;
     private EditText mTextNoteText;
@@ -39,7 +40,7 @@ public class NoteActivity extends AppCompatActivity {
     private String mOriginalNoteCourseId;
     private String mOriginalNoteTitle;
     private String mOriginalNoteText;
-    private NoteActivityViewModel mViewModel;
+   // private NoteActivityViewModel mViewModel;
     private NoteKeeperOpenHelper mDbOpenHelper;
     private Cursor mNoteCursor;
     private int mCourseIdPos;
@@ -61,16 +62,16 @@ public class NoteActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mDbOpenHelper =new  NoteKeeperOpenHelper(this);
-        ViewModelProvider viewModelProvider = new ViewModelProvider(getViewModelStore(),ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()));
-        mViewModel = viewModelProvider.get(NoteActivityViewModel.class);
+//        ViewModelProvider viewModelProvider = new ViewModelProvider(getViewModelStore(),ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()));
+     //   mViewModel = viewModelProvider.get(NoteActivityViewModel.class);
 
-        if(mViewModel.mIsNewlyCreated &&  savedInstanceState !=null){
-            //our ViewModel  still exists in the case of a configuration change so we dont need to use the bundle.
-            //Only use the bundle when the view model gets destroyed with the activity
-            mViewModel.restoreState(savedInstanceState);
-        }
-
-        mViewModel.mIsNewlyCreated= false;
+//        if(mViewModel.mIsNewlyCreated &&  savedInstanceState !=null){
+//            //our ViewModel  still exists in the case of a configuration change so we dont need to use the bundle.
+//            //Only use the bundle when the view model gets destroyed with the activity
+//            mViewModel.restoreState(savedInstanceState);
+//        }
+//
+//        mViewModel.mIsNewlyCreated= false;
 
         mSpinnerCourses = findViewById(R.id.spinner);
         List<CourseInfo> courses = DataManager.getInstance().getCourses();
@@ -88,20 +89,17 @@ public class NoteActivity extends AppCompatActivity {
         mTextNoteTitle = findViewById(R.id.text_title);
         mTextNoteText = findViewById(R.id.text_body);
 
-
         if(!mIsNewNote){
             loadNoteData();
         }
-
-
 
     }
 
     private void loadNoteData() {
         SQLiteDatabase db = mDbOpenHelper.getReadableDatabase();
 
-        String courseId = "android_intents";
-        String titleStart = "dynamic";
+//        String courseId = "android_intents";
+//        String titleStart = "dynamic";
 
         String selection = NoteInfoEntry._ID + " = ?";
 
@@ -123,9 +121,12 @@ public class NoteActivity extends AppCompatActivity {
 
     private void saveOriginalNoteValues() {
         if (mIsNewNote)return;
-        mViewModel.mOriginalCourseId = mNote.getCourse().getCourseId();
-        mViewModel.mOriginalNoteTitle = mNote.getTitle();
-        mViewModel.mOriginalNoteText = mNote.getText();
+//        mViewModel.mOriginalCourseId
+        mOriginalNoteCourseId = mNote.getCourse().getCourseId();
+//        mViewModel.
+       mOriginalNoteTitle = mNote.getTitle();
+//        mViewModel.
+        mOriginalNoteText = mNote.getText();
 
     }
 
@@ -176,10 +177,14 @@ public class NoteActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        if(outState !=null){
+//            mViewModel.saveState(outState);
+//        }
         super.onSaveInstanceState(outState);
-        if(outState !=null){
-            mViewModel.saveState(outState);
-        }
+        outState.putString(ORIGINAL_NOTE_COURSE_ID, mOriginalNoteCourseId);
+        outState.putString(ORIGINAL_NOTE_TITLE, mOriginalNoteTitle);
+        outState.putString(ORIGINAL_NOTE_TEXT, mOriginalNoteText);
     }
 
     @Override
@@ -243,10 +248,15 @@ public class NoteActivity extends AppCompatActivity {
     }
 
     private void storePreviousNoteValues() {
-        CourseInfo course = DataManager.getInstance().getCourse(mViewModel.mOriginalCourseId);
+//        CourseInfo course = DataManager.getInstance().getCourse(mViewModel.mOriginalCourseId);
+        CourseInfo course = DataManager.getInstance().getCourse(mOriginalNoteCourseId);
+
         mNote.setCourse(course);
-        mNote.setTitle(mViewModel.mOriginalNoteTitle);
-        mNote.setText(mViewModel.mOriginalNoteText);
+//        mNote.setTitle(mViewModel.mOriginalNoteTitle);
+//        mNote.setText(mViewModel.mOriginalNoteText);
+
+        mNote.setTitle(mOriginalNoteTitle);
+        mNote.setText(mOriginalNoteText);
     }
 
     private void saveNote() {
