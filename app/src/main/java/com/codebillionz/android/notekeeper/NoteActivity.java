@@ -12,7 +12,6 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
@@ -20,7 +19,6 @@ import android.widget.Spinner;
 import com.codebillionz.android.notekeeper.NoteKeeperDatabaseContract.CourseInfoEntry;
 import com.codebillionz.android.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
 
-import java.util.List;
 
 public class NoteActivity extends AppCompatActivity {
 
@@ -111,9 +109,11 @@ public class NoteActivity extends AppCompatActivity {
                 CourseInfoEntry._ID
         };
 
+        //todo: note from CursorAdapter class: The Cursor must include a column named "_id" or this class will not work.
+
         Cursor cursor = db.query(CourseInfoEntry.TABLE_NAME, courseColumns,
                 null, null, null, null, CourseInfoEntry.COLUMN_COURSE_TITLE);
-
+ //todo: note The Cursor must include a column named "_id" or this class will not work.
         mAdapterCourses.changeCursor(cursor);
 
     }
